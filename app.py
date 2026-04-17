@@ -17,7 +17,7 @@ def preprocess_image(image_path):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
     # Gaussian Blur + Otsu's thresholding handles blurry/uneven scans better
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
     _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     
     return img, thresh
@@ -41,10 +41,10 @@ def extract_text_from_zone(thresh_img, x, y, w, h, is_numeric=False):
     # Apply different rules based on the column type
     if is_numeric:
         # STRICT WHITELIST: Only numbers and decimals allowed
-        my_config = r'--psm 6 -c tessedit_char_whitelist=0123456789.'
+        my_config = r'--psm 7 -c tessedit_char_whitelist=0123456789./'
     else:
         # LOOSE WHITELIST: Letters, numbers, and hyphens for Specifications
-        my_config = r'--psm 6 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.'
+        my_config = r'--psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-./'
         
     text = pytesseract.image_to_string(roi_enlarged, config=my_config).strip()
     return text
