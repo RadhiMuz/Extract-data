@@ -7,8 +7,8 @@ import os
 from pdf2image import convert_from_path
 
 # --- CONFIGURATION ---
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\protege\tesserect\tesseract.exe'
-poppler_dir = r'C:\Users\protege\Downloads\Release-25.12.0-0\poppler-25.12.0\Library\bin' 
+#pytesseract.pytesseract.tesseract_cmd = r'C:\Users\protege\tesserect\tesseract.exe'
+#poppler_dir = r'C:\Users\protege\Downloads\Release-25.12.0-0\poppler-25.12.0\Library\bin' 
 
 st.set_page_config(page_title="Namicoh OCR Form Extractor", layout="wide")
 
@@ -74,7 +74,7 @@ if uploaded_file is not None:
     # --- NEW MULTI-PAGE LOGIC ---
     if temp_filepath.lower().endswith('.pdf'):
         with st.spinner('Reading PDF document...'):
-            pages = convert_from_path(temp_filepath, poppler_path=poppler_dir) #poppler_path=poppler_dir)
+            pages = convert_from_path(temp_filepath, ) #poppler_path=poppler_dir)
             total_pages = len(pages)
             
         # If the PDF has multiple pages, show the page selector
