@@ -74,7 +74,7 @@ if uploaded_file is not None:
     # --- NEW MULTI-PAGE LOGIC ---
     if temp_filepath.lower().endswith('.pdf'):
         with st.spinner('Reading PDF document...'):
-            pages = convert_from_path(temp_filepath, ) #poppler_path=poppler_dir)
+            pages = convert_from_path(temp_filepath ) #poppler_path=poppler_dir)
             total_pages = len(pages)
             
         # If the PDF has multiple pages, show the page selector
