@@ -69,20 +69,43 @@ if uploaded_file is not None:
     with open(temp_filepath, "wb") as f:
         f.write(uploaded_file.getbuffer())
         
-    st.info(f"File uploaded successfully. Processing as {form_orientation}...")
     image_path = 'temp_scanned_form.png'
 
+    # --- NEW MULTI-PAGE LOGIC ---
     if temp_filepath.lower().endswith('.pdf'):
-        with st.spinner('Converting PDF to image...'):
+        with st.spinner('Reading PDF document...'):
             pages = convert_from_path(temp_filepath) #poppler_path=poppler_dir)
-            pages[0].save(image_path, 'PNG')
+            total_pages = len(pages)
+            
+        # If the PDF has multiple pages, show the page selector
+        if total_pages > 1:
+            # Smart rule: Default to page 2 if Landscape is chosen
+            default_page = 2 if (form_orientation == "Landscape" and total_pages >= 2) else 1
+            
+            selected_page = st.number_input(
+                f"Select Page to Extract (This document has {total_pages} pages):", 
+                min_value=1, 
+                max_value=total_pages, 
+                value=default_page
+            )
+            # Python counts from 0, so Page 1 is index 0, Page 2 is index 1
+            page_index = selected_page - 1 
+        else:
+            st.info("Single page PDF detected.")
+            page_index = 0
+            
+        # Save ONLY the specific page the user selected
+        pages[page_index].save(image_path, 'PNG')
+        
     else:
+        # If it's just an image (PNG/JPG), pass it straight through
         image_path = temp_filepath
 
+    # --- AI EXTRACTION LOGIC ---
     with st.spinner('Running AI Extraction...'):
         original_img, processed_img = preprocess_image(image_path)
         
-        # --- CONDITIONAL COORDINATES ---
+        # CONDITIONAL COORDINATES
         if form_orientation == "Portrait":
             # Your existing working portrait coordinates
             zones = {
