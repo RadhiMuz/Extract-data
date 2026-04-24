@@ -7,8 +7,8 @@ import os
 from pdf2image import convert_from_path
 
 # --- CONFIGURATION ---
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Users\protege\tesserect\tesseract.exe'
-#poppler_dir = r'C:\Users\protege\Downloads\Release-25.12.0-0\poppler-25.12.0\Library\bin' 
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Users\protege\tesserect\tesseract.exe'
+# poppler_dir = r'C:\Users\protege\Downloads\Release-25.12.0-0\poppler-25.12.0\Library\bin' 
 
 st.set_page_config(page_title="Namicoh OCR Form Extractor", layout="wide")
 
@@ -53,6 +53,13 @@ def extract_text_from_zone(thresh_img, x, y, w, h, is_numeric=False):
 st.title("📄 Supplier Form Auto-Extractor")
 st.markdown("Upload a physical form to automatically extract the table data into a spreadsheet.")
 
+# --- DROPDOWN SELECTION ---
+form_orientation = st.selectbox(
+    "Select Form Orientation:",
+    options=["Portrait", "Landscape"],
+    index=0 # Defaults to Portrait
+)
+
 uploaded_file = st.file_uploader("Upload Form (PDF, PNG, JPG)", type=['pdf', 'png', 'jpg'])
 
 if uploaded_file is not None:
@@ -62,7 +69,7 @@ if uploaded_file is not None:
     with open(temp_filepath, "wb") as f:
         f.write(uploaded_file.getbuffer())
         
-    st.info("File uploaded successfully. Processing...")
+    st.info(f"File uploaded successfully. Processing as {form_orientation}...")
     image_path = 'temp_scanned_form.png'
 
     if temp_filepath.lower().endswith('.pdf'):
@@ -75,18 +82,23 @@ if uploaded_file is not None:
     with st.spinner('Running AI Extraction...'):
         original_img, processed_img = preprocess_image(image_path)
         
-        #ORIGINAL coordinate
-        #"specification": [50, 150, 250, 450],
-        #"Thickness": [365, 165, 120, 430],
-        #"Width": [495, 160, 110, 440],  
-        #"Length": [915, 1218, 65, 105],    
-        #"Price_KG": [1300, 180, 200, 430]
-        zones = {
-            "specification": {"coords": [120, 1210, 220, 100], "is_numeric": False},
-            "Thickness":     {"coords": [550, 1200, 120, 110], "is_numeric": True},
-            "Width":         {"coords": [700, 1210, 150, 110], "is_numeric": True},  
-            "Price_KG":      {"coords": [1050, 1210, 135, 110], "is_numeric": True} 
-        }
+        # --- CONDITIONAL COORDINATES ---
+        if form_orientation == "Portrait":
+            # Your existing working portrait coordinates
+            zones = {
+                "specification": {"coords": [120, 1210, 220, 100], "is_numeric": False},
+                "Thickness":     {"coords": [550, 1200, 120, 110], "is_numeric": True},
+                "Width":         {"coords": [700, 1210, 150, 110], "is_numeric": True},  
+                "Price_KG":      {"coords": [1050, 1210, 135, 110], "is_numeric": True} 
+            }
+        else:
+            # PLACEHOLDER landscape coordinates. Update these [x, y, w, h] later!
+            zones = {
+                "specification": {"coords": [0, 0, 100, 100], "is_numeric": False},
+                "Thickness":     {"coords": [0, 0, 100, 100], "is_numeric": True},
+                "Width":         {"coords": [0, 0, 100, 100], "is_numeric": True},  
+                "Price_KG":      {"coords": [0, 0, 100, 100], "is_numeric": True} 
+            }
         
         extracted_data = {}
         
